@@ -1,11 +1,11 @@
 {
-  "name": "starter-restaurant-reservation-back-end",
+  "name": "thinkful_final-capstone_restaurant-reservation-back-end",
   "version": "1.0.0",
-  "description": "Starter code for restaurant reservation backend",
+  "description": "Thinkful Final Capstone Restaurant Reservation backend",
   "main": "src/server.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Thinkful-Ed/starter-restaurant-reservation",
+    "url": "https://github.com/KenieB/Thinkful_Final-Capstone_Restaurant-Reservation.git",
     "directory": "/back-end"
   },
   "scripts": {
