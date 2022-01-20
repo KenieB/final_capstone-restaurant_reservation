@@ -46,6 +46,6 @@
     "test:frontend:watch": "npm test --prefix ./front-end"
   },
   "keywords": [],
-  "author": "Thinkful, Inc.",
+  "author": "Thinkful, Inc., Kenie Betts",
   "license": "UNLICENSED"
 }

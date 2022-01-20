@@ -25,7 +25,7 @@
     "test:start:run": "run-s test:drop-database start "
   },
   "keywords": [],
-  "author": "",
+  "author": "Kenie Betts",
   "license": "UNLICENSED",
   "dependencies": {
     "cors": "^2.8.5",
