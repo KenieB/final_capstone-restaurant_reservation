@@ -47,7 +47,7 @@ export const ReservationForm = ({}) => {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    
+    /*
     console.log(`formData - firstName: ${formData.first_name}`);
     console.log(`typeof formData - firstName: ${typeof formData.first_name}`);
     console.log(`formData - lastName: ${formData.last_name}`);
@@ -60,16 +60,19 @@ export const ReservationForm = ({}) => {
     console.log(`typeof formData - reservationTime: ${typeof formData.reservation_time}`);
     console.log(`formData - people: ${formData.people}`);
     console.log(`typeof formData - people: ${typeof formData.people}`);
-    
-    /*async function createNewReservation() {
+    */
+    async function createNewReservation() {
       try {
         const abortController = new AbortController();
         const response = await createReservation(formData, abortController.signal);
-        history.push(`/dashboard?date=${response.data.reservation_date}`);
+        console.log(response);
+        history.push("/");
+        //history.push(`/dashboard?date=${response.data.reservation_date}`);
       } catch (error) {
         setError(error);
       }
-    }*/
+    };
+    createNewReservation();
   };
 
   if (url === "/reservations/new") {

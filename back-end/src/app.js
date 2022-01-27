@@ -14,7 +14,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/reservations", reservationsRouter);
+//test API return
+
+let nextId = 1;
+app.post("/reservations", ((req, res) => {
+    const newReservation = req.body.data;
+    newReservation.reservation_id = nextId++;
+
+    res.status(201).json({
+        data: newReservation,
+    });
+}))
+
+
+//app.use("/reservations", reservationsRouter);
 
 app.use(notFound);
 app.use(errorHandler);
