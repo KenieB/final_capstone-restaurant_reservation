@@ -47,15 +47,21 @@ export const ReservationForm = ({}) => {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    /*
+    
     console.log(`formData - firstName: ${formData.first_name}`);
+    console.log(`typeof formData - firstName: ${typeof formData.first_name}`);
     console.log(`formData - lastName: ${formData.last_name}`);
+    console.log(`typeof formData - lastName: ${typeof formData.last_name}`);
     console.log(`formData - mobileNumber: ${formData.mobile_number}`);
+    console.log(`typeof formData - mobileNumber: ${typeof formData.mobile_number}`);
     console.log(`formData - reservationDate: ${formData.reservation_date}`);
+    console.log(`typeof formData - reservationDate: ${typeof formData.reservation_date}`);
     console.log(`formData - reservationTime: ${formData.reservation_time}`);
+    console.log(`typeof formData - reservationTime: ${typeof formData.reservation_time}`);
     console.log(`formData - people: ${formData.people}`);
-    */
-    async function createNewReservation() {
+    console.log(`typeof formData - people: ${typeof formData.people}`);
+    
+    /*async function createNewReservation() {
       try {
         const abortController = new AbortController();
         const response = await createReservation(formData, abortController.signal);
@@ -63,7 +69,7 @@ export const ReservationForm = ({}) => {
       } catch (error) {
         setError(error);
       }
-    }
+    }*/
   };
 
   if (url === "/reservations/new") {

@@ -58,7 +58,7 @@ function Dashboard({ date }) {
         <h4 className="mb-0">Reservations for {longDateString}</h4>
       </div>
       <ErrorAlert error={reservationsError} />
-      <div class="table-responsive">
+      <div className="table-responsive">
         <table className="table table-sm table-striped">
           <thead>
             <tr className="table-primary">
