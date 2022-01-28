@@ -65,9 +65,8 @@ export const ReservationForm = ({}) => {
       try {
         const abortController = new AbortController();
         const response = await createReservation(formData, abortController.signal);
-        console.log(response);
-        history.push("/");
-        //history.push(`/dashboard?date=${response.data.reservation_date}`);
+        //console.log(response);
+        history.push(`/dashboard?date=${response.reservation_date}`);
       } catch (error) {
         setError(error);
       }

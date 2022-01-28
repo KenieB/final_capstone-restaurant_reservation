@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Redirect, Route, Switch } from "react-router-dom";
+import {
+  Redirect,
+  Route,
+  Switch,
+  useParams,
+  useRouteMatch,
+  useLocation,
+} from "react-router-dom";
 import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
 import { today } from "../utils/date-time";
@@ -13,7 +20,22 @@ import CreateReservation from "../reservations/CreateReservation";
  * @returns {JSX.Element}
  */
 function Routes() {
+  const [reservations, setReservations] = useState([]);
+  const [reservationsError, setReservationsError] = useState(null);
   const [reservation, setReservation] = useState({});
+  const [viewDate, setViewDate] = useState(today());
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const searchQuery = location.search;
+    if (location.search) {
+      const queryKey = location.search.substring(1, 5);
+      queryKey === "date"
+        ? setViewDate(location.search.substring(6, 16))
+        : setViewDate(today());
+    }
+  }, [location]);
 
   return (
     <Switch>
@@ -24,7 +46,14 @@ function Routes() {
         <CreateReservation />
       </Route>
       <Route path="/dashboard">
-        <Dashboard date={today()} />
+        <Dashboard
+          viewDate={viewDate}
+          setViewDate={setViewDate}
+          reservations={reservations}
+          setReservations={setReservations}
+          reservationsError={reservationsError}
+          setReservationsError={setReservationsError}
+        />
       </Route>
       <Route>
         <NotFound />
