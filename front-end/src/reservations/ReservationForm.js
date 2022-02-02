@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
 import { createReservation } from "../utils/api";
 
-export const ReservationForm = ({}) => {
+export const ReservationForm = () => {
   const { url } = useRouteMatch();
   const history = useHistory();
 
@@ -35,6 +35,7 @@ export const ReservationForm = ({}) => {
   const [error, setError] = useState(null);
 
   //const [reservationUpdateFlag, setReservationUpdateFlag] = useState(false);
+  let newReservationDate = "";
 
   const handleChange = ({ target }) => {
     setFormData({
@@ -47,37 +48,31 @@ export const ReservationForm = ({}) => {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    /*
-    console.log(`formData - firstName: ${formData.first_name}`);
-    console.log(`typeof formData - firstName: ${typeof formData.first_name}`);
-    console.log(`formData - lastName: ${formData.last_name}`);
-    console.log(`typeof formData - lastName: ${typeof formData.last_name}`);
-    console.log(`formData - mobileNumber: ${formData.mobile_number}`);
-    console.log(`typeof formData - mobileNumber: ${typeof formData.mobile_number}`);
-    console.log(`formData - reservationDate: ${formData.reservation_date}`);
-    console.log(`typeof formData - reservationDate: ${typeof formData.reservation_date}`);
-    console.log(`formData - reservationTime: ${formData.reservation_time}`);
-    console.log(`typeof formData - reservationTime: ${typeof formData.reservation_time}`);
-    console.log(`formData - people: ${formData.people}`);
-    console.log(`typeof formData - people: ${typeof formData.people}`);
-    */
     async function createNewReservation() {
       try {
         const abortController = new AbortController();
-        const response = await createReservation(formData, abortController.signal);
-        //console.log(response);
-        history.push(`/dashboard?date=${response.reservation_date}`);
+        const response = await createReservation(
+          formData,
+          abortController.signal
+        );
+        newReservationDate = response.reservation_date;
+        history.push({
+          pathname: '/dashboard',
+          search: `?date=${newReservationDate}`
+        });
       } catch (error) {
         setError(error);
+      } finally {
+        newReservationDate = "";
       }
-    };
+    }
     createNewReservation();
   };
 
   if (url === "/reservations/new") {
     return (
       <>
-      <ErrorAlert error={error} />
+        <ErrorAlert error={error} />
         <form onSubmit={handleSubmit}>
           <div className="row g-2 mx-3 my-1 justify-content-md-evenly ms-md-0 me-md-5 mb-md-1">
             <div className="col-md-5">

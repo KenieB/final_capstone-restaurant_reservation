@@ -3,8 +3,6 @@ import {
   Redirect,
   Route,
   Switch,
-  useParams,
-  useRouteMatch,
   useLocation,
 } from "react-router-dom";
 import Dashboard from "../dashboard/Dashboard";
@@ -22,17 +20,17 @@ import CreateReservation from "../reservations/CreateReservation";
 function Routes() {
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
-  const [reservation, setReservation] = useState({});
+  //const [reservation, setReservation] = useState({});
   const [viewDate, setViewDate] = useState(today());
 
   const location = useLocation();
 
   useEffect(() => {
     const searchQuery = location.search;
-    if (location.search) {
-      const queryKey = location.search.substring(1, 5);
+    if (searchQuery) {
+      const queryKey = searchQuery.substring(1, 5);
       queryKey === "date"
-        ? setViewDate(location.search.substring(6, 16))
+        ? setViewDate(searchQuery.substring(6, 16))
         : setViewDate(today());
     }
   }, [location]);
