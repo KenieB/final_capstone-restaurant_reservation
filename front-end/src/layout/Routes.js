@@ -9,6 +9,7 @@ import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
 import { today } from "../utils/date-time";
 import CreateReservation from "../reservations/CreateReservation";
+import CreateTable from "../tables/CreateTable";
 
 /**
  * Defines all the routes for the application.
@@ -22,6 +23,9 @@ function Routes() {
   const [reservationsError, setReservationsError] = useState(null);
   //const [reservation, setReservation] = useState({});
   const [viewDate, setViewDate] = useState(today());
+  const [tables, setTables] = useState([]);
+  const [tablesError, setTablesError] = useState(null);
+  //const [table, setTable] = useState({});
 
   const location = useLocation();
 
@@ -40,8 +44,11 @@ function Routes() {
       <Route exact={true} path="/">
         <Redirect to={"/dashboard"} />
       </Route>
-      <Route path="/reservations/new">
-        <CreateReservation />
+      <Route exact={true} path="/tables/new">
+        <CreateTable tablesError={tablesError} setTablesError={setTablesError} />
+      </Route>
+      <Route exact={true} path="/reservations/new">
+        <CreateReservation reservationsError={reservationsError} setReservationsError={setReservationsError} />
       </Route>
       <Route path="/dashboard">
         <Dashboard

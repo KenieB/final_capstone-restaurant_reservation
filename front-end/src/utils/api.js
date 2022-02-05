@@ -53,9 +53,9 @@ async function fetchJson(url, options, onCancel) {
 }
 
 /**
- * Retrieves all existing reservation.
+ * Retrieves all existing reservations.
  * @returns {Promise<[reservation]>}
- *  a promise that resolves to a possibly empty array of reservation saved in the database.
+ *  a promise that resolves to a possibly empty array of reservations saved in the database.
  */
 
 export async function listReservations(viewDate, signal) {
@@ -69,7 +69,11 @@ export async function listReservations(viewDate, signal) {
     .then(formatReservationDate)
     .then(formatReservationTime);
 }
-
+/**
+ * Creates new reservation record.
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to the newly created reservation.
+ */
 export async function createReservation(reservation, signal) {
   const url = `${API_BASE_URL}/reservations`;
   const options = {
@@ -81,4 +85,35 @@ export async function createReservation(reservation, signal) {
   return await fetchJson(url, options)
     .then(formatReservationDate)
     .then(formatReservationTime);
+}
+
+
+/**
+ * Retrieves all existing tables.
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to a possibly empty array of tables saved in the database.
+ */
+ export async function listTables(signal) {
+  const url = new URL(`${API_BASE_URL}/tables`);
+  const options = {
+    headers,
+    signal,
+  };
+  return await fetchJson(url, options, []);
+}
+
+/**
+ * Creates new table record.
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to the newly created table.
+ */
+export async function createTable(table, signal) {
+  const url = `${API_BASE_URL}/tables`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ data: table }),
+    signal,
+  };
+  return await fetchJson(url, options);
 }

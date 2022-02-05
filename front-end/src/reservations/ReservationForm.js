@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
-import ErrorAlert from "../layout/ErrorAlert";
 import { createReservation } from "../utils/api";
 
-export const ReservationForm = () => {
+export const ReservationForm = ({ reservationsError, setReservationsError }) => {
   const { url } = useRouteMatch();
   const history = useHistory();
 
-  function initFormState() {
+  const initFormState = () => {
     if (!url.includes("new")) {
       const initialFormState = {
         first_name: "placeholder-exst-reservation-first-name",
@@ -32,7 +31,6 @@ export const ReservationForm = () => {
   }
 
   const [formData, setFormData] = useState(initFormState());
-  const [error, setError] = useState(null);
 
   //const [reservationUpdateFlag, setReservationUpdateFlag] = useState(false);
   let newReservationDate = "";
@@ -49,8 +47,8 @@ export const ReservationForm = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     async function createNewReservation() {
+      const abortController = new AbortController();
       try {
-        const abortController = new AbortController();
         const response = await createReservation(
           formData,
           abortController.signal
@@ -61,7 +59,7 @@ export const ReservationForm = () => {
           search: `?date=${newReservationDate}`
         });
       } catch (error) {
-        setError(error);
+        setReservationsError(error);
       } finally {
         newReservationDate = "";
       }
@@ -72,7 +70,6 @@ export const ReservationForm = () => {
   if (url === "/reservations/new") {
     return (
       <>
-        <ErrorAlert error={error} />
         <form onSubmit={handleSubmit}>
           <div className="row g-2 mx-3 my-1 justify-content-md-evenly ms-md-0 me-md-5 mb-md-1">
             <div className="col-md-5">

@@ -1,5 +1,5 @@
 const path = require("path");
-const logger = require("./config/logger");
+
 
 require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
@@ -8,6 +8,7 @@ const cors = require("cors");
 
 const errorHandler = require("./errors/errorHandler");
 const notFound = require("./errors/notFound");
+const logger = require("./config/logger");
 
 const reservationsRouter = require("./reservations/reservations.router");
 
