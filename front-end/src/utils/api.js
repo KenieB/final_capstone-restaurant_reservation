@@ -53,9 +53,13 @@ async function fetchJson(url, options, onCancel) {
 }
 
 /**
- * Retrieves all existing reservations.
+ * Retrieves all existing reservations with specified `viewDate`
+ * @param {string<viewDate>}
+ *  the `reservation_date` matching desired reservation(s)
+ * @param {AbortController.signal<signal>}
+ *  optional AbortController.signal
  * @returns {Promise<[reservation]>}
- *  a promise that resolves to a possibly empty array of reservations saved in the database.
+ *  a promise that resolves to a possibly empty array of reservations with `reservation_date`===`viewDate` saved in the database.
  */
 
 export async function listReservations(viewDate, signal) {
@@ -69,8 +73,13 @@ export async function listReservations(viewDate, signal) {
     .then(formatReservationDate)
     .then(formatReservationTime);
 }
+
 /**
- * Creates new reservation record.
+ * Saves a new reservation to database.
+ * @param {object<reservation>}
+ *  the object containing new reservation data
+ * @param {AbortController.signal<signal>}
+ *  optional AbortController.signal
  * @returns {Promise<[reservation]>}
  *  a promise that resolves to the newly created reservation.
  */
@@ -87,14 +96,36 @@ export async function createReservation(reservation, signal) {
     .then(formatReservationTime);
 }
 
+/**
+ * Retrieves reservation with the specified `reservationId`.
+ * @param {string<reservationId>}
+ *  the `reservation_id` property matching the desired reservation
+ * @param {AbortController.signal<signal>}
+ *  optional AbortController.signal
+ * @returns {Promise<[reservation]>}
+ *  a promise that resolves to the saved reservation.
+ */
+ export async function readReservation(reservationId, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservationId}`;
+  const options = {
+    headers,
+    signal,
+  };
+   return await fetchJson(url, options)
+    .then(formatReservationDate)
+    .then(formatReservationTime);
+}
+
 
 /**
  * Retrieves all existing tables.
- * @returns {Promise<[reservation]>}
+ * @param {AbortController.signal<signal>}
+ *  optional AbortController.signal
+ * @returns {Promise<[table]>}
  *  a promise that resolves to a possibly empty array of tables saved in the database.
  */
  export async function listTables(signal) {
-  const url = new URL(`${API_BASE_URL}/tables`);
+  const url = `${API_BASE_URL}/tables`;
   const options = {
     headers,
     signal,
@@ -103,8 +134,12 @@ export async function createReservation(reservation, signal) {
 }
 
 /**
- * Creates new table record.
- * @returns {Promise<[reservation]>}
+ * Saves a new table to the database.
+ * @param {object<table>}
+ *  the object containing new reservation data
+ * @param {AbortController.signal<signal>}
+ *  optional AbortController.signal
+ * @returns {Promise<table>}
  *  a promise that resolves to the newly created table.
  */
 export async function createTable(table, signal) {
@@ -113,6 +148,28 @@ export async function createTable(table, signal) {
     method: "POST",
     headers,
     body: JSON.stringify({ data: table }),
+    signal,
+  };
+  return await fetchJson(url, options);
+}
+
+/**
+ * Updates table record to seat reservation.
+ * @param {number<tableId>}
+ *  the `table_id` property associated with table to update
+ * @param {number<reservationId>}
+ *  the update value for `reservation_id` property of the specified table
+ * @param {AbortController.signal<signal>}
+ *  optional AbortController.signal
+ * @returns {Promise<table>}
+ *  a promise that resolves to the updated table.
+ */
+ export async function seatTable(tableId, reservationId, signal) {
+  const url = `${API_BASE_URL}/tables/${tableId}/seat`;
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ data: { reservation_id: reservationId } }),
     signal,
   };
   return await fetchJson(url, options);

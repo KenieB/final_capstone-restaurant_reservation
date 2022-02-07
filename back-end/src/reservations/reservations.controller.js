@@ -116,8 +116,8 @@ function reservationDateIsInFuture(req, res, next) {
 function reservationDateIsNotTuesday(req, res, next) {
   const methodName = "reservationDateIsNotTuesday";
   req.log.debug({ __filename, methodName, body: req.body });
-  
-  if(res.locals.reqReserveAsDate.getDay() !== 2) {
+
+  if (res.locals.reqReserveAsDate.getDay() !== 2) {
     req.log.trace({ __filename, methodName, valid: true });
     return next();
   }
@@ -132,12 +132,18 @@ function reservationTimeIsInBusinessHours(req, res, next) {
   const reqReserveHour = res.locals.reqReserveAsDate.getHours();
   const reqReserveMin = res.locals.reqReserveAsDate.getMinutes();
 
-  if(Number(reqReserveHour) < 10 || (Number(reqReserveHour) === 10 && Number(reqReserveMin) < 30)) {
+  if (
+    Number(reqReserveHour) < 10 ||
+    (Number(reqReserveHour) === 10 && Number(reqReserveMin) < 30)
+  ) {
     const message = "Reservation time must be after 10:30 AM";
     next({ status: 400, message: message });
     req.log.trace({ __filename, methodName, valid: false }, message);
   }
-  if(Number(reqReserveHour) > 21 || (Number(reqReserveHour) === 21 && Number(reqReserveMin) > 30)) {
+  if (
+    Number(reqReserveHour) > 21 ||
+    (Number(reqReserveHour) === 21 && Number(reqReserveMin) > 30)
+  ) {
     const message = "Reservation time must be before 9:30 PM";
     next({ status: 400, message: message });
     req.log.trace({ __filename, methodName, valid: false }, message);
@@ -146,6 +152,26 @@ function reservationTimeIsInBusinessHours(req, res, next) {
   return next();
 }
 
+async function reservationExists(req, res, next) {
+  const methodName = "reservationExists";
+  const reservationId = req.params.reservation_id;
+  req.log.debug({
+    __filename,
+    methodName,
+    params: { reservation_id: reservationId },
+  });
+  const reservation = await reservationsService.read(reservationId);
+  if (reservation) {
+    req.log.trace({ __filename, methodName, valid: true });
+    res.locals.reservation = reservation;
+    return next();
+  }
+  const message = `Reservation #${reservationId} cannot be found.`;
+  next({ status: 404, message: message });
+  req.log.trace({ __filename, methodName, valid: false }, message);
+}
+
+//CRUD methods
 async function list(req, res) {
   const methodName = "list";
   req.log.debug({ __filename, methodName });
@@ -156,7 +182,7 @@ async function list(req, res) {
 
 async function create(req, res) {
   const methodName = "create";
-  req.log.debug({ __filename, methodName });
+  req.log.debug({ __filename, methodName, body: req.body });
 
   const newReservationRequest = {
     first_name: res.locals.first_name,
@@ -169,6 +195,14 @@ async function create(req, res) {
 
   const data = await reservationsService.create(newReservationRequest);
   res.status(201).json({ data });
+  req.log.trace({ __filename, methodName, return: true, data });
+}
+
+function read(req, res) {
+  const methodName = "read";
+  req.log.debug({ __filename, methodName });
+  const { reservation } = res.locals;
+  res.json({ data: reservation });
   req.log.trace({ __filename, methodName, return: true, data });
 }
 
@@ -186,4 +220,5 @@ module.exports = {
     reservationTimeIsInBusinessHours,
     asyncErrorBoundary(create),
   ],
+  read: [asyncErrorBoundary(reservationExists), read],
 };

@@ -2,9 +2,19 @@ import React, { useState } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 import { createTable } from "../utils/api";
 
-export const TableForm = ({ tablesError, setTablesError }) => {
+export const TableForm = ({ reservationsError, setReservationsError }) => {
   const { url } = useRouteMatch();
   const history = useHistory();
+  const smallCapsStyle = {
+    letterSpacing: 2,
+    fontVariant: "small-caps",
+    fontWeight: 500,
+  };
+  const allSmallCapsStyle = {
+    letterSpacing: 2,
+    fontVariant: "all-small-caps",
+    fontWeight: 500,
+  };
 
   const initFormState = {
     table_name: "",
@@ -28,8 +38,10 @@ export const TableForm = ({ tablesError, setTablesError }) => {
       const abortController = new AbortController();
       try {
         const response = await createTable(formData, abortController.signal);
+        //console.log("RESPONSE:\n", response);
+        history.push("/dashboard");
       } catch (error) {
-        setTablesError(error);
+        setReservationsError(error);
       }
     }
     createNewTable();
@@ -40,7 +52,11 @@ export const TableForm = ({ tablesError, setTablesError }) => {
       <form onSubmit={handleSubmit}>
         <div className="row g-2 mx-3 my-1 justify-content-md-evenly ms-md-0 me-md-5 mb-md-1">
           <div className="col-md-5">
-            <label htmlFor="table_name" className="form-label">
+            <label
+              htmlFor="table_name"
+              className="form-label"
+              style={smallCapsStyle}
+            >
               Table name:
             </label>
             <input
@@ -57,7 +73,11 @@ export const TableForm = ({ tablesError, setTablesError }) => {
             />
           </div>
           <div className="col-md-5">
-            <label htmlFor="capacity" className="form-label">
+            <label
+              htmlFor="capacity"
+              className="form-label"
+              style={smallCapsStyle}
+            >
               Capacity:
             </label>
             <input
@@ -75,12 +95,17 @@ export const TableForm = ({ tablesError, setTablesError }) => {
         <div className="d-grid gap-2 mx-3 my-3 d-md-flex justify-content-md-evenly ms-md-0 me-md-5">
           <button
             type="button"
-            className="btn btn-secondary btn-lg col-md-4"
+            className="btn btn-secondary btn-lg col-md-4 fs-5 py-1"
+            style={allSmallCapsStyle}
             onClick={handleCancel}
           >
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary btn-lg col-md-4">
+          <button
+            type="submit"
+            className="btn btn-primary btn-lg col-md-4 fs-5 py-1"
+            style={allSmallCapsStyle}
+          >
             Submit
           </button>
         </div>

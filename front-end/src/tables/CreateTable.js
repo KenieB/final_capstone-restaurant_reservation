@@ -3,14 +3,14 @@ import React from "react";
 import TableForm from "./TableForm";
 import ErrorAlert from "../layout/ErrorAlert";
 
-export const CreateTable = ({ tablesError, setTablesError }) => {
+export const CreateTable = ({ reservationsError, setReservationsError }) => {
   return (
     <div className="mt-2">
       <h1>Create Table</h1>
       <div>
-        <ErrorAlert error={tablesError} />
+        <ErrorAlert error={reservationsError} />
       </div>
-      <TableForm tablesError={tablesError} setTablesError={setTablesError} />
+      <TableForm error={reservationsError} setReservationsError={setReservationsError} />
     </div>
   );
 };
