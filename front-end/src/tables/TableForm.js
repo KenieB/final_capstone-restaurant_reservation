@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { useRouteMatch, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { createTable } from "../utils/api";
 
 export const TableForm = ({ reservationsError, setReservationsError }) => {
-  const { url } = useRouteMatch();
   const history = useHistory();
   const smallCapsStyle = {
     letterSpacing: 2,
@@ -34,17 +33,21 @@ export const TableForm = ({ reservationsError, setReservationsError }) => {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
+    const abortController = new AbortController();
     async function createNewTable() {
-      const abortController = new AbortController();
       try {
-        const response = await createTable(formData, abortController.signal);
-        //console.log("RESPONSE:\n", response);
+        const newTableRequest = {
+          ...formData,
+          capacity: Number(formData.capacity),
+        }
+        await createTable(newTableRequest, abortController.signal);
         history.push("/dashboard");
       } catch (error) {
         setReservationsError(error);
       }
     }
     createNewTable();
+    return () => abortController.abort();
   };
 
   return (

@@ -3,6 +3,8 @@ import { Link, useHistory } from "react-router-dom";
 import { listReservations, listTables } from "../utils/api";
 import { today, previous, next } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
+import TableDisplayByStatus from "./TableDisplayByStatus";
+import ReservationButtonDisplayByStatus from "./ReservationButtonDisplayByStatus";
 
 /**
  * Defines the dashboard page.
@@ -19,26 +21,7 @@ function Dashboard({
   tables,
   setTables,
 }) {
-  /**
-   * Object for translating month digit respresentation to text full name string
-   *
-   * (keys) "##" || (values) "Month-Name"
-   */
-  const MONTH_NAME_TRANSLATOR = {
-    "01": "January",
-    "02": "February",
-    "03": "March",
-    "04": "April",
-    "05": "May",
-    "06": "June",
-    "07": "July",
-    "08": "August",
-    "09": "September",
-    10: "October",
-    11: "November",
-    12: "December",
-  };
-
+  
   //React Hook(s)
   const history = useHistory();
 
@@ -78,35 +61,13 @@ function Dashboard({
   // DATA FORMAT FUNCTIONS
 
   /**
-   * Translate default `viewDate` format("YYYY-MM-DD") to formal US-Standard format
-   *
-   * @returns {string}
-   *      'viewDate' formatted as "Full-Month-Name DD, YYYY"
-   */
-  const longDateString = (dateToTranslate) =>
-    MONTH_NAME_TRANSLATOR[dateToTranslate.substr(5, 2)] +
-    " " +
-    dateToTranslate.substr(8, 2) +
-    ", " +
-    dateToTranslate.substr(0, 4);
-
-  /**
    * Map `reservations` for `viewDate` to display table rows
    */
   const reservationsTableRows = reservations.map((reservation) => (
+
     <tr key={reservation.reservation_id}>
       <th scope="row">
-        <Link
-          to={`/reservations/${reservation.reservation_id}/seat`}
-          style={{
-            letterSpacing: 2,
-            fontVariant: "all-small-caps",
-            fontWeight: 500,
-          }}
-          className="d-flex justify-content-center btn btn-outline-warning border-2 rounded py-1 fs-5"
-        >
-          Seat
-        </Link>
+        <ReservationButtonDisplayByStatus reservation={reservation} />
       </th>
       <td className="text-center">
         {reservation.reservation_time.charAt(0) === "0"
@@ -123,19 +84,8 @@ function Dashboard({
   /**
    * Map `tables` to display table rows
    */
-  const tablesTableRows = tables.map((table) => (
-    <tr key={table.table_name}>
-      <th scope="row" className="ps-3">
-        {table.table_name}
-      </th>
-      <td
-        className="text-center fw-light"
-        data-table-id-status={table.table_id}
-      >
-        {table.status}
-      </td>
-      <td className="text-center fw-light">{table.capacity}</td>
-    </tr>
+  const tablesTableRows = tables.map((table, index) => (
+    <TableDisplayByStatus key={index} table={table} setReservationsError={setReservationsError} />   
   ));
 
   // CLICK HANDLERS
@@ -206,7 +156,7 @@ function Dashboard({
             style={{ letterSpacing: 1, fontVariant: "small-caps" }}
             className="mb-0"
           >
-            Reservations for {longDateString(viewDate)}
+            Reservations for {viewDate}
           </h4>
         </div>
         <div className="container mw-100 mx-1">
@@ -216,7 +166,9 @@ function Dashboard({
                 <table className="table table-dark table-striped table-hover align-middle">
                   <thead>
                     <tr>
-                      <th scope="col" className="text-center px-2"></th>
+                      <th scope="col" className="text-center px-2">
+                        Status
+                      </th>
                       <th scope="col" className="text-center px-2">
                         Time
                       </th>

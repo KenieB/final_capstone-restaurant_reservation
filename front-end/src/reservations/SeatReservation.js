@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { seatTable } from "../utils/api";
+import { seatTable, updateReservationStatus } from "../utils/api";
 
 export const SeatReservation = ({
   activeReservation,
@@ -12,7 +12,8 @@ export const SeatReservation = ({
   setReservationsError,
 }) => {
   //
-  const [selectTableId, setSelectTableId] = useState(1);
+  const [selectTableId, setSelectTableId] = useState(tables[0].table_id);
+  const [tableSeatedFlag, setTableSeatedFlag] = useState(false);
   const params = useParams();
   const reservationId = params.reservation_id;
   const history = useHistory();
@@ -30,7 +31,7 @@ export const SeatReservation = ({
 
   const selectTableOptions = tables.map((table) => (
     <option
-      key={`${table.table_id}`}
+      label={`${table.table_name} - ${table.capacity}`}
       value={`${table.table_id}`}
     >{`${table.table_name} - ${table.capacity}`}</option>
   ));
@@ -48,15 +49,8 @@ export const SeatReservation = ({
     const abortController = new AbortController();
     async function seatReservationTable() {
       try {
-        const response = await seatTable(
-          selectTableId,
-          reservationId,
-          abortController.signal
-        );
-        history.push({
-          pathname: "/dashboard",
-          search: `?date=${activeReservation.reservation_date}`,
-        });
+        await seatTable(selectTableId, reservationId, abortController.signal);
+        setTableSeatedFlag(true);
       } catch (error) {
         setReservationsError(error);
       }
@@ -65,10 +59,36 @@ export const SeatReservation = ({
     return () => abortController.abort();
   };
 
+  useEffect(() => {
+    if (tableSeatedFlag) {
+      const abortController = new AbortController();
+      async function seatReservationStatus() {
+        try {
+          const newStatus = "seated";
+          const updatedReservation = await updateReservationStatus(
+            reservationId,
+            newStatus,
+            abortController.signal
+          );
+          console.log("updated reservation: ", updatedReservation);
+          history.push({
+            pathname: "/dashboard",
+            search: `?date=${activeReservation.reservation_date}`,
+          });
+        } catch (error) {
+          setReservationsError(error);
+        }
+      }
+      seatReservationStatus();
+      return () => abortController.abort();
+    }
+    // eslint-disable-next-line
+  }, [tableSeatedFlag]);
+
   return (
     <div className="mt-2">
       <h1 className="text-center text-md-start">
-        Seat Reservation #{params.reservation_id}
+        Seat Reservation #{reservationId}
       </h1>
       <div>
         <ErrorAlert error={reservationsError} />

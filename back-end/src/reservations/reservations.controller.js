@@ -1,14 +1,7 @@
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const reservationsService = require("./reservations.service");
 
-const VALID_PROPERTIES = [
-  "first_name",
-  "last_name",
-  "mobile_number",
-  "reservation_date",
-  "reservation_time",
-  "people",
-];
+const VALID_STATUS_VALUES = ["booked", "seated", "finished"];
 
 //Request Validations
 
@@ -21,7 +14,7 @@ function bodyHasFirstNameProperty(req, res, next) {
     res.locals.first_name = first_name;
     return next();
   }
-  const message = "Reservation must include a first name";
+  const message = "Reservation must include a first_name";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
@@ -35,7 +28,7 @@ function bodyHasLastNameProperty(req, res, next) {
     res.locals.last_name = last_name;
     return next();
   }
-  const message = "Reservation must include a last name";
+  const message = "Reservation must include a last_name";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
@@ -49,7 +42,7 @@ function bodyHasMobileNumberProperty(req, res, next) {
     res.locals.mobile_number = mobile_number;
     return next();
   }
-  const message = "Reservation must include a mobile number";
+  const message = "Reservation must include a mobile_number";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
@@ -63,7 +56,7 @@ function bodyHasReservationDateProperty(req, res, next) {
     res.locals.reservation_date = reservation_date;
     return next();
   }
-  const message = "Reservation must include a reservation date";
+  const message = "Reservation must include a reservation_date";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
@@ -77,7 +70,7 @@ function bodyHasReservationTimeProperty(req, res, next) {
     res.locals.reservation_time = reservation_time;
     return next();
   }
-  const message = "Reservation must include a reservation time";
+  const message = "Reservation must include a reservation_time";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
@@ -88,12 +81,31 @@ function bodyHasPeopleProperty(req, res, next) {
   const { data: { people } = {} } = req.body;
   if (people) {
     req.log.trace({ __filename, methodName, valid: true });
-    res.locals.people = Number(people);
+    res.locals.peopleInReq = people;
     return next();
   }
-  const message = "Reservation must include a party size";
+  const message = "Reservation must include a party size ( people )";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
+}
+
+function peoplePropertyIsNumber(req, res, next) {
+  const methodName = "peoplePropertyIsNumber";
+  const peopleInReq = res.locals.peopleInReq;
+  req.log.debug({
+    __filename,
+    methodName,
+    peopleInReqBody: peopleInReq,
+    peopleInReqNumber: Number.isInteger(peopleInReq),
+  });
+  if (!Number.isInteger(peopleInReq)) {
+    const message = "Reservation property - people - must be a number";
+    next({ status: 400, message: message });
+    req.log.trace({ __filename, methodName, valid: false }, message);
+  }
+  req.log.trace({ __filename, methodName, valid: true });
+  res.locals.people = Number(peopleInReq);
+  return next();
 }
 
 function reservationDateIsInFuture(req, res, next) {
@@ -108,7 +120,7 @@ function reservationDateIsInFuture(req, res, next) {
     res.locals.reqReserveAsDate = reqReservationDateValue;
     return next();
   }
-  const message = "Reservation date and time must be in future";
+  const message = "reservation_date and reservation_time must be in future";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
@@ -121,7 +133,8 @@ function reservationDateIsNotTuesday(req, res, next) {
     req.log.trace({ __filename, methodName, valid: true });
     return next();
   }
-  const message = "Restaurant closed on Tuesdays. Select a different date.";
+  const message =
+    "Restaurant closed on Tuesdays. reservation_date cannot be a Tuesday. Select a different date.";
   next({ status: 400, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
@@ -136,7 +149,7 @@ function reservationTimeIsInBusinessHours(req, res, next) {
     Number(reqReserveHour) < 10 ||
     (Number(reqReserveHour) === 10 && Number(reqReserveMin) < 30)
   ) {
-    const message = "Reservation time must be after 10:30 AM";
+    const message = "reservation_time must be after 10:30 AM";
     next({ status: 400, message: message });
     req.log.trace({ __filename, methodName, valid: false }, message);
   }
@@ -144,7 +157,7 @@ function reservationTimeIsInBusinessHours(req, res, next) {
     Number(reqReserveHour) > 21 ||
     (Number(reqReserveHour) === 21 && Number(reqReserveMin) > 30)
   ) {
-    const message = "Reservation time must be before 9:30 PM";
+    const message = "reservation_time must be before 9:30 PM";
     next({ status: 400, message: message });
     req.log.trace({ __filename, methodName, valid: false }, message);
   }
@@ -166,10 +179,38 @@ async function reservationExists(req, res, next) {
     res.locals.reservation = reservation;
     return next();
   }
-  const message = `Reservation #${reservationId} cannot be found.`;
+  const message = `Cannot find reservation_id #${reservationId}.`;
   next({ status: 404, message: message });
   req.log.trace({ __filename, methodName, valid: false }, message);
 }
+
+function bodyHasStatusProperty(req, res, next) {
+  const methodName = "bodyHasStatusProperty";
+  req.log.debug({ __filename, methodName, body: req.body });
+  const { data: { status } = {} } = req.body;
+  if (status) {
+    req.log.trace({ __filename, methodName, valid: true });
+    res.locals.statusUpdate = status;
+    return next();
+  }
+  const message = "Reservation update must include status property";
+  next({ status: 400, message: message });
+  req.log.trace({ __filename, methodName, valid: false }, message);
+}
+
+function statusPropertyIsValid(req, res, next) {
+  const methodName = "statusPropertyIsValid";
+  req.log.debug({ __filename, methodName, status: res.locals.statusUpdate });
+
+  if (VALID_STATUS_VALUES.includes(res.locals.statusUpdate)) {
+    req.log.trace({ __filename, methodName, valid: true });
+    return next();
+  }
+  const message = `Requested status update - ${res.locals.statusUpdate} - for reservation #${res.locals.reservation.reservation_id} is not valid. reservation_status must be one of: 'booked', 'seated', 'finished', 'cancelled'.`;
+  next({ status: 400, message: message });
+  req.log.trace({ __filename, methodName, valid: false }, message);
+}
+
 
 //CRUD methods
 async function list(req, res) {
@@ -180,7 +221,7 @@ async function list(req, res) {
   req.log.trace({ __filename, methodName, return: true, data });
 }
 
-async function create(req, res) {
+async function create(req, res, next) {
   const methodName = "create";
   req.log.debug({ __filename, methodName, body: req.body });
 
@@ -206,6 +247,24 @@ function read(req, res) {
   req.log.trace({ __filename, methodName, return: true, data });
 }
 
+async function updateStatus(req, res) {
+  const methodName = "updateStatus";
+
+  const reservationStatusUpdate = {
+    reservationId: res.locals.reservation.reservation_id,
+    newReservationStatus: res.locals.statusUpdate,
+  };
+  req.log.debug({
+    __filename,
+    methodName,
+    reservationStatusUpdate: reservationStatusUpdate,
+  });
+  const updatedReservation = await reservationsService.updateStatus(reservationStatusUpdate);
+  const data = updatedReservation.reservation_status;
+  res.status(201).json({ data });
+  req.log.trace({ __filename, methodName, return: true, data });
+}
+
 module.exports = {
   list,
   create: [
@@ -213,6 +272,7 @@ module.exports = {
     bodyHasLastNameProperty,
     bodyHasMobileNumberProperty,
     bodyHasPeopleProperty,
+    peoplePropertyIsNumber,
     bodyHasReservationDateProperty,
     bodyHasReservationTimeProperty,
     reservationDateIsInFuture,
@@ -221,4 +281,10 @@ module.exports = {
     asyncErrorBoundary(create),
   ],
   read: [asyncErrorBoundary(reservationExists), read],
+  updateStatus: [
+    asyncErrorBoundary(reservationExists),
+    bodyHasStatusProperty,
+    statusPropertyIsValid,
+    asyncErrorBoundary(updateStatus),
+  ],
 };

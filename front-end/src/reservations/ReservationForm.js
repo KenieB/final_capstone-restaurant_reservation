@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouteMatch, useHistory } from "react-router-dom";
 import { createReservation } from "../utils/api";
 
@@ -44,9 +44,9 @@ export const ReservationForm = ({
   };
 
   const [formData, setFormData] = useState(initFormState());
+  const [newReservationDate, setNewReservationDate] = useState("");
 
   //const [reservationUpdateFlag, setReservationUpdateFlag] = useState(false);
-  let newReservationDate = "";
 
   const handleChange = ({ target }) => {
     setFormData({
@@ -59,26 +59,36 @@ export const ReservationForm = ({
   };
   const handleSubmit = (event) => {
     event.preventDefault();
+    const abortController = new AbortController();
+    setNewReservationDate("");
     async function createNewReservation() {
-      const abortController = new AbortController();
       try {
+        const newReservationRequest = {
+          ...formData,
+          people: Number(formData.people),
+        };
         const response = await createReservation(
-          formData,
+          newReservationRequest,
           abortController.signal
         );
-        newReservationDate = response.reservation_date;
-        history.push({
-          pathname: "/dashboard",
-          search: `?date=${newReservationDate}`,
-        });
+        setNewReservationDate(response.reservation_date);
       } catch (error) {
         setReservationsError(error);
-      } finally {
-        newReservationDate = "";
       }
     }
     createNewReservation();
+    return () => abortController.abort();
   };
+
+  useEffect(() => {
+    if (newReservationDate) {
+      history.push({
+        pathname: "/dashboard",
+        search: `?date=${newReservationDate}`,
+      });
+    }
+    // eslint-disable-next-line
+  }, [newReservationDate]);
 
   if (url === "/reservations/new") {
     return (

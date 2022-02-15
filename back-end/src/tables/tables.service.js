@@ -33,6 +33,18 @@ function readTableReservationDetail(ids) {
     .orWhere({ "r.reservation_id": ids.reservationId });
 }
 
+function readReservationsToSeat(reservationId) {
+  return knex("tables as t")
+    .rightOuterJoin("reservations as r", "t.reservation_id", "r.reservation_id")
+    .select (
+      "t.table_id",
+      "r.reservation_id",
+      "r.reservation_date",
+    )
+    .where({ "r.reservation_id": reservationId })
+    .first();
+}
+
 function readTableDetail(tableId) {
   return knex("tables as t")
     .join("reservations as r", "t.reservation_id", "r.reservation_id")
@@ -49,7 +61,14 @@ function update(tableUpdate) {
       reservation_id: tableUpdate.reservation_id,
       status: "Occupied",
     })
-    .returning("*");
+    .returning("*")
+    .then((updatedRecords) => updatedRecords[0]);
+}
+
+function destroy(tableId) {
+  return knex("tables")
+    .where({ table_id: tableId })
+    .del();
 }
 
 module.exports = {
@@ -58,5 +77,7 @@ module.exports = {
   read,
   readTableReservationDetail,
   readTableDetail,
+  readReservationsToSeat,
   update,
+  delete: destroy,
 };

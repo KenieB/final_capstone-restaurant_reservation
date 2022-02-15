@@ -17,6 +17,7 @@ router
 router
   .route("/:table_id([0-9]+)/seat")
   .put(controller.update)
+  .delete(controller.delete)
   .all(methodNotAllowed);
 
 module.exports = router;

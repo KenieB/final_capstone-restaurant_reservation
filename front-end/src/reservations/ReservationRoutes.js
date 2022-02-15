@@ -1,11 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  Route,
-  Switch,
-  useRouteMatch,
-  useParams,
-  useLocation,
-} from "react-router-dom";
+import { Route, Switch, useRouteMatch, useParams } from "react-router-dom";
 import SeatReservation from "./SeatReservation";
 import { readReservation } from "../utils/api";
 
@@ -17,10 +11,8 @@ function ReservationRoutes({
   reservationsError,
   setReservationsError,
 }) {
-  const { path, url } = useRouteMatch();
+  const { path } = useRouteMatch();
   const { reservation_id } = useParams();
-  const location = useLocation();
-  //const reservationId = params.reservation_id;
 
   /**
    * useEffect calls loadActiveReservation. New render based on change to `reservation_id` url param.
@@ -41,25 +33,8 @@ function ReservationRoutes({
     }
     loadActiveReservation();
     return () => abortController.abort();
-  }, [reservation_id]);
+  }, [reservation_id, setActiveReservation, setReservationsError]);
 
-
-  /*useEffect(() => {
-    console.log(
-      "ReservationRoutes: \n useParams - reservation_id: ",
-      reservation_id,
-      "\n useRouteMatch - path: ",
-      path,
-      "\n useRouteMatch - url: ",
-      url,
-      "\n useRouteMatch - param: ",
-      reservation_id,
-      "\n useLocation - location: ",
-      location,
-      "\n activeReservation",
-      activeReservation
-    );
-  }, [activeReservation]);*/
   return (
     <Switch>
       <Route path={`${path}/seat`}>
